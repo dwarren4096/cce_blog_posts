@@ -17,8 +17,6 @@ def HTMLSearch(path):
   
   for root, dirs, files in os.walk(path, topdown=True):
     dirs[:] = [d for d in dirs if d not in exclude]
-    #only return .hmtl files
-    #files[:] = [f for f in files if f in set([".html"])]
     
     print (root)
     #for d in dirs:
@@ -28,8 +26,6 @@ def HTMLSearch(path):
     files = [f for f in files if re.match(include, f)]
     for fname in files:
       print (fname)
-    #for f in files:
-    #  print ("Files:", f)
-  return fname
 
-#blogSearch(path)
+  return files
+

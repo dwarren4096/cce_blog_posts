@@ -1,8 +1,8 @@
 import sqlite3
 #from HTMLParser import HTMLParser
-import html.parser
 import os
 import search
+import cceHTMLParser
 
 
 # set up SQLite database
@@ -25,7 +25,7 @@ def createDB(conn):
             FOREIGN KEY(bp_id) REFERENCES Blog_Posts(ID)
             FOREIGN KEY(wp_id) REFERENCES Web_Page(ID))''')
   
-  #c.execute("INSERT INTO Blog_Posts (title, href) VALUES ('Post Title', 'Post Link')")
+  #c.execute("INSERT INTO Blog_Posts (title, href) VALUES ('Post Title', 'Post Link')") #insert test data
   conn.commit()
   return
 
@@ -37,5 +37,10 @@ print(c.fetchall())
 # traverse CCE website directory, looking for <div id="relblogposts">
 path = "/home/derek/cce/website"
 HTMLFiles = search.HTMLSearch(path)
+
+parser = cceHTMLParser.cceHTMLParser()
+print ("Parsing", HTMLFiles[0])
+parserFile = open(HTMLFiles[0])
+parser.feed(parserFile.read)
 
 conn.close
