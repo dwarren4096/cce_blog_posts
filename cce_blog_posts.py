@@ -1,11 +1,20 @@
 import sqlite3
-from HTMLParser import HTMLParser
+#from HTMLParser import HTMLParser
+import html.parser
+import os
+import search
 
+
+# set up SQLite database
 DB = 'cbp.db'   #database name
 
-conn = sqlite3.connect(DB)
+if (os.path.isfile(DB)):
+  conn = sqlite3.connect(DB)
+else:
+  conn = sqlite3.connect(DB)
+  createDB(conn)
 
-def createdb(conn):
+def createDB(conn):
   c = conn.cursor()
   c.execute('''CREATE TABLE IF NOT EXISTS Blog_Posts
             (title text UNIQUE, href text UNIQUE, ID INTEGER PRIMARY KEY AUTOINCREMENT)''')
@@ -20,9 +29,13 @@ def createdb(conn):
   conn.commit()
   return
 
-createdb(conn)
+#createDB(conn)
 c = conn.cursor()
 c.execute('SELECT * FROM Blog_Posts')
 print(c.fetchall())
+
+# traverse CCE website directory, looking for <div id="relblogposts">
+path = "/home/derek/cce/website"
+HTMLFiles = search.HTMLSearch(path)
 
 conn.close
