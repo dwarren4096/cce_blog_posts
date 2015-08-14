@@ -32,15 +32,16 @@ def createDB(conn):
 #createDB(conn)
 c = conn.cursor()
 c.execute('SELECT * FROM Blog_Posts')
-print(c.fetchall())
+#print(c.fetchall())
 
 # traverse CCE website directory, looking for <div id="relblogposts">
-path = "/home/derek/cce/website"
-HTMLFiles = search.HTMLSearch(path)
+path = "/home/derek/cce/website"  #directory's static for now, eventually will be user-changeable
+#HTMLFiles = search.HTMLSearch(path)
 
 parser = cceHTMLParser.cceHTMLParser()
-print ("Parsing", HTMLFiles[0])
-parserFile = open(HTMLFiles[0])
-parser.feed(parserFile.read)
+#print ("Parsing", HTMLFiles[0])
+#parserFile = open(HTMLFiles[0])
+parserFile = open(path+'/students/index.html')  #for testing purposes, use one that we know has relblog
+parser.feed(parserFile.read())
 
 conn.close
