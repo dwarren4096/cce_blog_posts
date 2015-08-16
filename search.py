@@ -15,6 +15,18 @@ def HTMLSearch(path):
   include = r'|'.join([fnmatch.translate(x) for x in include])
   #exclude = r'|'.join([fnmatch.translate(x) for x in exclude])
   
+  files = search(path, include, exclude)
+
+  return files
+
+def blogSearch(path):
+  blogRoot = path + '/blog'
+  #grab only .html files
+  include = ['*.html']
+  #directories to exclude
+  exclude = ["_notes", "assets_c"]
+
+def search(path, include, exclude):
   for root, dirs, files in os.walk(path, topdown=True):
     dirs[:] = [d for d in dirs if d not in exclude]
     
@@ -22,10 +34,9 @@ def HTMLSearch(path):
     #for d in dirs:
     #  print ("Dirs:", d)
     
-    files = [os.path.join(root, f) for f in files]
-    files = [f for f in files if re.match(include, f)]
+    files = [os.path.join(root, f) for f in files]	# appends path to filename
+    files = [f for f in files if re.match(include, f)]	# filters anything that isn't an .html file
     for fname in files:
       print (fname)
-
+    
   return files
-
