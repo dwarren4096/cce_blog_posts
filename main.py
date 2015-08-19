@@ -5,7 +5,7 @@ import search
 import cceHTMLParser
 
 
-# set up SQLite database
+# set up SQLite database, create it if it doesn't exist
 DB = 'cbp.db'   #database name
 
 if (os.path.isfile(DB)):
@@ -31,17 +31,28 @@ def createDB(conn):
 
 #createDB(conn)
 c = conn.cursor()
-c.execute('SELECT * FROM Blog_Posts')
+#c.execute('SELECT * FROM Blog_Posts')
 #print(c.fetchall())
 
 # traverse CCE website directory, looking for <div id="relblogposts">
 path = "/home/derek/cce/website"  #directory's static for now, eventually will be user-changeable
+
+#blogFNames = search.blogSearch(path)
+blogFNames = [path+"/blog/2014/12/shadow-day-vii.html"]
+print("Parsing", blogFNames[0])
+blogFile = open(blogFNames[0])
+blogParser = cceHTMLParser.cceBlogParser(blogFNames[0])
+blogParser.feed(str(blogFile.read()))
+
 #HTMLFiles = search.HTMLSearch(path)
 
-parser = cceHTMLParser.cceHTMLParser()
+#cceWebPages = []
+#cceWebPages.append(cceHTMLParser.cceWebPage(HTMLFiles[0]))
+
+#parser = cceHTMLParser.cceHTMLParser()
 #print ("Parsing", HTMLFiles[0])
 #parserFile = open(HTMLFiles[0])
-parserFile = open(path+'/students/index.html')  #for testing purposes, use one that we know has relblog
-parser.feed(parserFile.read())
+#parserFile = open(path+'/students/index.html')  #for testing purposes, use one that we know has relblog
+#cceWebPages[0] = parser.feed(parserFile.read())
 
 conn.close
