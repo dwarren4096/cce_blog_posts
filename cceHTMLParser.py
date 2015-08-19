@@ -38,9 +38,12 @@ class cceHTMLParser(HTMLParser):
   def handle_endtag(self, tag):
     if tag == "div" and self.foundRelBlogs == 1:
       self.foundRelBlogs = 2
-      return self.cceWebPage  #relblog block has ended, return the cceWebPage object
+      #return self.cceWebPage  #relblog block has ended, return the cceWebPage object
     if tag == "a" and self.foundRelBlogs == 1:
       self.foundATag = False
+      
+  def getWebPage(self):
+    return self.cceWebPage
   
 class cceWebPage():
   def __init__(self, fname):
@@ -79,6 +82,7 @@ class cceBlogParser(HTMLParser):
           self.foundTimestamp = True
         if key == 'title' and self.foundTimestamp:
           print (value)
+          self.blogPage.timestamp = value
     
   def handle_data(self, data):
     if self.foundTitle:
@@ -91,11 +95,17 @@ class cceBlogParser(HTMLParser):
       self.foundTitle = False
     if tag == "div" and self.foundHeader==1:
       self.foundHeader = 2
-      return self.blogPage
+      #return self.blogPage
+      
+  def getBlogPage(self):
+    return self.blogPage
 
 class cceBlogPage():
   def __init__(self, fname):
     self.fname = fname    #blog post's URL
     self.title = ""       #blog post's title
     self.timestamp = ""
+    
+  def getValues(self):
+    return (self.title, self.fname, self.timestamp)
     

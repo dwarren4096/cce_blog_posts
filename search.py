@@ -37,16 +37,18 @@ def blogSearch(path):
   
   
 def search(path, include, exclude):
-  for root, dirs, files in os.walk(path, topdown=True):
+  files = []
+  for root, dirs, filenames in os.walk(path, topdown=True):
     dirs[:] = [d for d in dirs if d not in exclude]
     
-    print (root)
+    #print (root)
     #for d in dirs:
     #  print ("Dir:", d)
     
-    files = [os.path.join(root, f) for f in files]
-    files = [f for f in files if re.match(include, f)]
-    for fname in files:
+    filenames = [os.path.join(root, f) for f in filenames]
+    filenames = [f for f in filenames if re.match(include, f)]
+    for fname in filenames:
       print (fname)
+      files.append(fname)
     
   return files
