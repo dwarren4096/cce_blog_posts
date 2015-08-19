@@ -3,64 +3,95 @@ import re
 
 class cceHTMLParser(HTMLParser):
   def __init__(self, fname):
-    super(cceHTMLParser(HTMLParser).__init__()
+    super(cceHTMLParser, self).__init__()
     # we only care about stuff inside <div id="relblogs">
-    self.foundRelBlogs = False
+    self.webPage = cceWebPage(fname)
+    self.foundRelBlogs = 0    # 0 if before <div id="relblogs">, 1 if inside it, 2 if after </div>
     self.foundATag = False
-    self.cceWebPage(fname)
+    self.foundTitle = False
   
   def handle_starttag(self, tag, attrs):
     if tag == "div" and attrs == [('id', 'relblogs')]:
       print ('Found relblogs')
-      self.foundRelBlogs = True
+      self.foundRelBlogs = 1
       
-    if tag == "a" and self.foundRelBlogs:
+    if tag == "a" and self.foundRelBlogs == 1:
       self.foundATag = True
       for name, value in attrs:
         if name=="href":
           print (value)
-          self.cceWebPage.href.append(value)
+          self.webPage.blogHref.append(value)
+    
+    # each page only has one <title> tag, no special checks needed here
+    if tag == "title":
+      self.foundTitle = True
   
   def handle_data(self, data):
-    if self.foundRelBlogs and self.foundATag:
+    if self.foundRelBlogs == 1 and self.foundATag:
       print (data)
-      self.cceWebPage.title.append(data)
+      self.webPage.blogTitle.append(data)
+    if self.foundTitle:
+      data = data.split(" - ")[0] 
+      print(data)
+      self.webPage.title = data
       
   def handle_endtag(self, tag):
-    if tag == "div" and self.foundRelBlogs:
-      self.foundRelBlogs = False
+    if tag == "div" and self.foundRelBlogs == 1:
+      self.foundRelBlogs = 2
       return self.cceWebPage  #relblog block has ended, return the cceWebPage object
-    if tag == "a" and self.foundRelBlogs:
+    if tag == "a" and self.foundRelBlogs == 1:
       self.foundATag = False
   
 class cceWebPage():
   def __init__(self, fname):
-    self.fname = fname    # name of the HTML file
-    self.href = []        # blog post's URL
-    self.title = []       # blog post's title (TODO: these should probably be part of a named tuple)
+    self.fname = fname        # name of the HTML file
+    self.pageTitle = ''
+    self.blogHref = []        # blog post's URL
+    self.blogTitle = []       # blog post's title
     
+#----------------------------------------------------------
 
 class cceBlogParser(HTMLParser):
   def __init__(self, fname):
     super(cceBlogParser, self).__init__()
     self.foundTitle = False
     self.foundTimestamp = False
-    #self.cceBlogPage(fname)
+    self.foundHeader = 0    # 0 if before <div id="entry-*">, 1 if inside, 2 if after </div>
+    self.blogPage = cceBlogPage(fname)
   
   def handle_starttag(self, tag, attrs):
-    if tag == "h1" and attrs == [('class'), ('fancy narrow_headline')]:
+    #if tag == "h1" and attrs == [('class', 'fancy narrow_headline')]:
+    # no special checks needed here, each page only has one title
+    if tag == "title":
       print ("Found title")
       self.foundTitle = True
-    if tag == "abbr":
-      print (attrs)
-    #if tag == "abbr" and attrs(range(0)) == (('class'), ('published'))
-    #  for name, value in attrs:
-    #    if name=="title"
     
-  #def handle_data(self, data):
-  #  print()
-  #def handle_endtag(self, tag):
-  #  print()
+    if tag == "div" and self.foundHeader == 0:
+      for a in attrs:
+        key, value = a
+        if key == "id" and re.match("entry-*", value):
+          self.foundHeader = 1
+    
+    if tag == "abbr" and self.foundHeader == 1:
+      for a in attrs:
+        key, value = a
+        if a == ('class', 'published'):
+          self.foundTimestamp = True
+        if key == 'title' and self.foundTimestamp:
+          print (value)
+    
+  def handle_data(self, data):
+    if self.foundTitle:
+      data = data.split(" - ")[0] 
+      print(data)
+      self.blogPage.title = data
+      
+  def handle_endtag(self, tag):
+    if tag == "title":
+      self.foundTitle = False
+    if tag == "div" and self.foundHeader==1:
+      self.foundHeader = 2
+      return self.blogPage
 
 class cceBlogPage():
   def __init__(self, fname):

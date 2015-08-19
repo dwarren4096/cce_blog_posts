@@ -38,7 +38,7 @@ c = conn.cursor()
 path = "/home/derek/cce/website"  #directory's static for now, eventually will be user-changeable
 
 #blogFNames = search.blogSearch(path)
-blogFNames = [path+"/blog/2014/12/shadow-day-vii.html"]
+blogFNames = [path+"/blog/2014/11/discovery-day-viii.html"]
 print("Parsing", blogFNames[0])
 blogFile = open(blogFNames[0])
 blogParser = cceHTMLParser.cceBlogParser(blogFNames[0])

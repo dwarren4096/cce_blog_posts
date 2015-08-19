@@ -33,7 +33,7 @@ def blogSearch(path):
   
   files = search(blogPath, include, exclude)
   
-  return files    #TODO: strip absolute path, make everything root-relative
+  return files
   
   
 def search(path, include, exclude):
