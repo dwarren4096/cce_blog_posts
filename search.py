@@ -16,7 +16,8 @@ def HTMLSearch(path):
   #exclude = r'|'.join([fnmatch.translate(x) for x in exclude])
   
   files = search(path, include, exclude)
-
+  root = len(path)
+  files[:] = [f[root:] for f in files]    # strip absolute path, return only relative path
   return files
   
 # returns a list of all blog posts
@@ -32,7 +33,8 @@ def blogSearch(path):
   #exclude = r'|'.join([fnmatch.translate(x) for x in exclude])
   
   files = search(blogPath, include, exclude)
-  
+  root = len(path)
+  files[:] = [f[root:] for f in files]    # strip absolute path, return only relative path
   return files
   
   
@@ -48,9 +50,7 @@ def search(path, include, exclude):
     filenames = [os.path.join(root, f) for f in filenames]
     filenames = [f for f in filenames if re.match(include, f)]
     for fname in filenames:
-      print (fname)
+      #print (fname)
       files.append(fname)
-    
-  root = (path.len())
-  files[:] = [f[root:] for f in files]
+  
   return files

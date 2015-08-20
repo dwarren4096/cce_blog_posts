@@ -9,18 +9,21 @@ class cceHTMLParser(HTMLParser):
     self.foundRelBlogs = 0    # 0 if before <div id="relblogs">, 1 if inside it, 2 if after </div>
     self.foundATag = False
     self.foundTitle = False
+    self.url = ''
+    #self.linkname = ''
   
   def handle_starttag(self, tag, attrs):
     if tag == "div" and attrs == [('id', 'relblogs')]:
-      print ('Found relblogs')
+      #print ('Found relblogs')
       self.foundRelBlogs = 1
       
     if tag == "a" and self.foundRelBlogs == 1:
       self.foundATag = True
       for name, value in attrs:
         if name=="href":
-          print (value)
-          self.webPage.blogHref.append(value)
+          #print (value)
+          #self.webPage.blogHref.append(value)
+          self.url = value
     
     # each page only has one <title> tag, no special checks needed here
     if tag == "title":
@@ -28,11 +31,12 @@ class cceHTMLParser(HTMLParser):
   
   def handle_data(self, data):
     if self.foundRelBlogs == 1 and self.foundATag:
-      print (data)
-      self.webPage.blogTitle.append(data)
+      #print (data)
+      #self.webPage.blogTitle.append(data)
+      self.webPage.blogLink.append((self.url, data))
     if self.foundTitle:
       data = data.split(" - ")[0] 
-      print("Title:", data)
+      #print("Title:", data)
       self.webPage.pageTitle = data
       
   def handle_endtag(self, tag):
@@ -50,8 +54,9 @@ class cceWebPage():
   def __init__(self, fname):
     self.fname = fname        # name of the HTML file
     self.pageTitle = ''
-    self.blogHref = []        # blog post's URL
-    self.blogTitle = []       # blog post's title
+    #self.blogHref = []        # blog post's URL
+    #self.blogTitle = []       # blog post's title
+    self.blogLink = []         # tuple consisting of the blog post's URL and title
     
   #def getValues(self):
     
