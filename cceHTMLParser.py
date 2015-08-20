@@ -3,7 +3,7 @@ import re
 
 class cceHTMLParser(HTMLParser):
   def __init__(self, fname):
-    super(cceHTMLParser, self).__init__()
+    super(cceHTMLParser, self).__init__(convert_charrefs=True)
     # we only care about stuff inside <div id="relblogs">
     self.webPage = cceWebPage(fname)
     self.foundRelBlogs = 0    # 0 if before <div id="relblogs">, 1 if inside it, 2 if after </div>
@@ -32,18 +32,19 @@ class cceHTMLParser(HTMLParser):
       self.webPage.blogTitle.append(data)
     if self.foundTitle:
       data = data.split(" - ")[0] 
-      print(data)
-      self.webPage.title = data
+      print("Title:", data)
+      self.webPage.pageTitle = data
       
   def handle_endtag(self, tag):
     if tag == "div" and self.foundRelBlogs == 1:
       self.foundRelBlogs = 2
-      #return self.cceWebPage  #relblog block has ended, return the cceWebPage object
     if tag == "a" and self.foundRelBlogs == 1:
       self.foundATag = False
+    if tag == "title":
+      self.foundTitle = False
       
   def getWebPage(self):
-    return self.cceWebPage
+    return self.webPage
   
 class cceWebPage():
   def __init__(self, fname):
@@ -52,11 +53,13 @@ class cceWebPage():
     self.blogHref = []        # blog post's URL
     self.blogTitle = []       # blog post's title
     
+  #def getValues(self):
+    
 #----------------------------------------------------------
 
 class cceBlogParser(HTMLParser):
   def __init__(self, fname):
-    super(cceBlogParser, self).__init__()
+    super(cceBlogParser, self).__init__(convert_charrefs=True)
     self.foundTitle = False
     self.foundTimestamp = False
     self.foundHeader = 0    # 0 if before <div id="entry-*">, 1 if inside, 2 if after </div>
@@ -66,7 +69,7 @@ class cceBlogParser(HTMLParser):
     #if tag == "h1" and attrs == [('class', 'fancy narrow_headline')]:
     # no special checks needed here, each page only has one title
     if tag == "title":
-      print ("Found title")
+      #print ("Found title")
       self.foundTitle = True
     
     if tag == "div" and self.foundHeader == 0:
@@ -81,13 +84,13 @@ class cceBlogParser(HTMLParser):
         if a == ('class', 'published'):
           self.foundTimestamp = True
         if key == 'title' and self.foundTimestamp:
-          print (value)
+          #print (value)
           self.blogPage.timestamp = value
     
   def handle_data(self, data):
     if self.foundTitle:
       data = data.split(" - ")[0] 
-      print(data)
+      #print("Title:", data)
       self.blogPage.title = data
       
   def handle_endtag(self, tag):
@@ -95,7 +98,6 @@ class cceBlogParser(HTMLParser):
       self.foundTitle = False
     if tag == "div" and self.foundHeader==1:
       self.foundHeader = 2
-      #return self.blogPage
       
   def getBlogPage(self):
     return self.blogPage

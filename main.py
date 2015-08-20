@@ -23,48 +23,70 @@ def createDB(conn):
   conn.commit()
   return
 
-if (os.path.isfile(DB)):
-  conn = sqlite3.connect(DB)
-else:
-  conn = sqlite3.connect(DB)
-  createDB(conn)
+def dropDB(conn):
+  c = conn.cursor()
+  c.execute('DROP TABLE IF EXISTS Blog_Posts')
+  c.execute('DROP TABLE IF EXISTS Web_Page')
+  c.execute('DROP TABLE IF EXISTS Lookup') 
 
+def resetDB(conn):
+  dropDB(conn)
+  createDB(conn)
+  
+#if (os.path.isfile(DB)):
+#  conn = sqlite3.connect(DB)
+#else:
+#  conn = sqlite3.connect(DB)
+#  createDB(conn)
+
+conn = sqlite3.connect(DB)
+resetDB(conn)
 #createDB(conn)
 c = conn.cursor()
-#c.execute('SELECT * FROM Blog_Posts')
-#print(c.fetchall())
 
 # traverse CCE website directory, looking for <div id="relblogposts">
 path = "/home/derek/cce/website"  #directory's static for now, eventually will be user-changeable
 
 blogPages = []
+print("Blog files:")
 blogFNames = search.blogSearch(path)
-#i=0
 #blogFNames = [path+"/blog/2014/11/discovery-day-viii.html"]
 for blogFName in blogFNames:
-  print("Parsing", blogFName)
-  blogFile = open(blogFName)
-  blogParser = cceHTMLParser.cceBlogParser(blogFName)
+  #print("Parsing", path + blogFName)
+  blogFile = open(path + blogFName)
+  blogParser = cceHTMLParser.cceBlogParser(path+blogFName)
   blogParser.feed(str(blogFile.read()))
   blogPages.append(blogParser.getBlogPage())
 
 # we've got our blog pages, now enter them into the db
 for blogPage in blogPages:
   values = blogPage.getValues()
-  print (values)
   c.execute('INSERT INTO Blog_Posts (title, href, timestamp) VALUES (?,?,?)', values)
-c.execute('SELECT * FROM Blog_Posts')
-print(c.fetchall())
+#c.execute('SELECT * FROM Blog_Posts')
+#print("SELECT * FROM Blog_Posts\n", c.fetchall())
 
-#HTMLFiles = search.HTMLSearch(path)
+#----------------------------------------------
 
-#cceWebPages = []
-#cceWebPages.append(cceHTMLParser.cceWebPage(HTMLFiles[i]))
 
-#parser = cceHTMLParser.cceHTMLParser()
-#print ("Parsing", HTMLFiles[i])
-#parserFile = open(HTMLFiles[i])
-#parserFile = open(path+'/students/index.html')  #for testing purposes, use one that we know has relblog
-#cceWebPages[i] = parser.feed(parserFile.read())
+cceWebPages = []
+print("\nWeb pages:")
+HTMLFiles = search.HTMLSearch(path)
+#HTMLFiles = [path+'/students/index.html']
+for HTMLFilename in HTMLFiles:
+   print("Parsing", path + HTMLFilename)
+   HTMLFile = open(path+HTMLFilename)
+   webParser = cceHTMLParser.cceHTMLParser(path+HTMLFilename)
+   webParser.feed(str(HTMLFile.read()))
+   cceWebPages.append(webParser.getWebPage())
+   
+# enter web pages into db
+for webPage in cceWebPages:
+  values = webPage.fname, webPage.pageTitle
+  c.execute('INSERT INTO Web_Page (title, href) VALUES (?,?)', values)
+  
+  #for href in webPage.
+  
+c.execute('SELECT * FROM Web_Page')
+print('SELECT * FROM Web_Page\n', c.fetchall())
 
 conn.close

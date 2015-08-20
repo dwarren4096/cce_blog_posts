@@ -51,4 +51,6 @@ def search(path, include, exclude):
       print (fname)
       files.append(fname)
     
+  root = (path.len())
+  files[:] = [f[root:] for f in files]
   return files
